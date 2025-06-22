@@ -6,6 +6,8 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Home from "./components/pages/Home.jsx";
 import store from "./redux/store.js";
 import { Provider } from "react-redux";
+import Dashboard from "./components/Dashboard.jsx";
+import AddPost from "./components/AddPost.jsx";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -14,6 +16,16 @@ const router = createBrowserRouter([
       {
         path: "/",
         element: <Home />,
+      },
+      {
+        path: "/dashboard",
+        element: <Dashboard />,
+        children: [
+          {
+            path: "addpost",
+            element: <AddPost />,
+          },
+        ],
       },
     ],
   },

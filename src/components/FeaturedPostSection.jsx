@@ -11,7 +11,6 @@ const FeaturedPostSection = () => {
   const [limit, setLimit] = useState(3);
   const [sortOrder, setSortOrder] = useState("asc");
   const [sortBy, setSortBy] = useState("status");
-  
 
   const { data, totalData, loading, error } = useFeaturedPost(
     page,
@@ -20,21 +19,19 @@ const FeaturedPostSection = () => {
     sortBy,
   );
   const dispatch = useDispatch();
- 
+
   useEffect(() => {
     dispatch(setFeaturedPosts(data));
   }, [data]);
   if (loading) {
     return <div>Loading...</div>;
   }
-  if (error) {
+  if (!error) {
     return <div>Error...</div>;
   }
   return (
     <div className="bg-red-600 p-5 rounded-md my-4">
-      <FilterBar
-       
-      />
+      <FilterBar />
       <div className="gap-y-5 gap-x-4 grid md:grid-cols-3 sm:grid-cols-2   flex justify-center items-center place-items-center">
         {data.map((post, i) => (
           <VerticalCard

@@ -1,10 +1,10 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { IoMdRemove } from "react-icons/io";
+import SearchFilterOptions from "./SearchFilterOptions";
 const FilterDropDown = ({
   onAllSelect,
   onAllClear,
@@ -24,15 +24,16 @@ const FilterDropDown = ({
   selectedCities,
   selectedCountries,
 }) => {
-  const loopOnOptions = (options, selectedOptions, onOptionChange) => {
-    return options.map((option, index) => (
+  const [query, setQuery] = useState("");
+  const loopOnOptions = ({ options, selected, onChange }) => {
+    return filterArray(query, options).map((option, index) => (
       <>
         {index === 0 && (
           <div className={`flex items-center space-x-2`}>
             <Checkbox
               id="all"
               className="cursor-pointer"
-              checked={selectedOptions.length === options.length}
+              checked={selected.length === options.length}
               onCheckedChange={(checked) =>
                 onAllSelect(checked, selectedFilter)
               }
@@ -43,8 +44,8 @@ const FilterDropDown = ({
         <div className={`flex items-center space-x-2 ml-3 mt-3`}>
           <Checkbox
             className="cursor-pointer"
-            checked={selectedOptions.includes(option)}
-            onCheckedChange={(checked) => onOptionChange(checked, option)}
+            checked={selected.includes(option)}
+            onCheckedChange={(checked) => onChange(checked, option)}
             id={option}
           />
           <Label htmlFor={option}>{option}</Label>
@@ -52,16 +53,46 @@ const FilterDropDown = ({
       </>
     ));
   };
-  const loopOnSelectedOptions = (selectedOptions, onOptionChange) => {
-    return selectedOptions.map((option, index) => (
+  const loopOnSelectedOptions = ({ selected, onChange }) => {
+    return selected.map((option, index) => (
       <div className="flex items-center space-x-2 mt-3 justify-between">
         <span className="text-sm">{option}</span>
         <IoMdRemove
           className="cursor-pointer"
-          onClick={() => onOptionChange(false, option)}
+          onClick={() => onChange(false, option)}
         />
       </div>
     ));
+  };
+  const filterArray = (q, filterArray) => {
+    return filterArray.filter((item) =>
+      item.toLowerCase().trim().includes(q.toLowerCase().trim()),
+    );
+  };
+  useEffect(() => {
+    setQuery("");
+  }, [selectedFilter]);
+  const filterMap = {
+    Category: {
+      options: categoryOptions,
+      selected: selectedCategories,
+      onChange: onCategoryChange,
+    },
+    Country: {
+      options: countryOptions,
+      selected: selectedCountries,
+      onChange: onCountryChange,
+    },
+    State: {
+      options: stateOptions,
+      selected: selectedStates,
+      onChange: onStateChange,
+    },
+    City: {
+      options: cityOptions,
+      selected: selectedCities,
+      onChange: onCityChange,
+    },
   };
   return (
     <div className="w-[500px] flex">
@@ -88,35 +119,18 @@ const FilterDropDown = ({
           <div className="bg-white rounded w-3/4">
             <TabsContent value={selectedFilter} className="flex">
               <div className="flex flex-col flex-1">
-                <input
-                  type="text"
-                  placeholder="Search"
-                  className="outline-none border-none rounded-none h-[35px] px-4 w-full"
+                <SearchFilterOptions
+                  onInputChange={(input) => setQuery(input)}
                 />
                 <Separator />
                 <div className="px-2 pt-4">
-                  {selectedFilter === "Category" &&
-                    loopOnOptions(
-                      categoryOptions,
-                      selectedCategories,
-                      onCategoryChange,
-                    )}
-                  {selectedFilter === "City" &&
-                    loopOnOptions(cityOptions, selectedCities, onCityChange)}
-                  {selectedFilter === "State" &&
-                    loopOnOptions(stateOptions, selectedStates, onStateChange)}
-                  {selectedFilter === "Country" &&
-                    loopOnOptions(
-                      countryOptions,
-                      selectedCountries,
-                      onCountryChange,
-                    )}
+                  {loopOnOptions(filterMap[selectedFilter])}
                 </div>
               </div>
               <Separator orientation="vertical" />
               <div className="flex flex-col flex-1 bg-white">
                 <div className="flex items-center h-[35px] bg-white px-2  justify-between">
-                  <span className="text-sm">{selectedFilter}</span>
+                  <span className="text-sm">{`${filterMap[selectedFilter].selected.length} ${selectedFilter}`}</span>
                   <button
                     className="text-sm text-blue-400 border-0 outline-none cursor-pointer"
                     onClick={() => onAllClear(selectedFilter)}
@@ -127,14 +141,7 @@ const FilterDropDown = ({
 
                 <Separator />
                 <div className="px-2 pt-4 ">
-                  {selectedFilter === "Category" &&
-                    loopOnSelectedOptions(selectedCategories, onCategoryChange)}
-                  {selectedFilter === "City" &&
-                    loopOnSelectedOptions(selectedCities, onCityChange)}
-                  {selectedFilter === "State" &&
-                    loopOnSelectedOptions(selectedStates, onStateChange)}
-                  {selectedFilter === "Country" &&
-                    loopOnSelectedOptions(selectedCountries, onCountryChange)}
+                  {loopOnSelectedOptions(filterMap[selectedFilter])}
                 </div>
               </div>
             </TabsContent>
